@@ -22,20 +22,25 @@ type TRANSACTIONS_RESUMEN struct {
 
 type OPERATION struct {
 	gorm.Model
-	ID             int       `json:"user_id"`
+	ID             uint `json:"id_operation" gorm:"autoIncrement:true"`
+	UserID         uint
 	User           USER      `gorm:"foreignKey:UserID"`
-	Type_Operation string    `json:"Operation_Type"`
-	Balance        string    `json:"Balance_Operation"`
-	DateVisit      time.Time `json:"date_operation"`
+	Type_Operation string    `json:"Type_Operation"`
+	Balance        float32   `json:"Balance"`
+	DateVisit      time.Time `json:"DateVisit"`
+	RFC            string    `json:"RFC"`
 }
 
 type USER struct {
 	gorm.Model
-	ID       int    `gorm:"primary_key"`
-	RFC      string `json:"rfc"`
-	Name     string `json:"nombre"`
-	LastName string `json:"apellido"`
+	ID       uint   `gorm:"primary_key;autoIncrement:true"`
+	RFC      string `json:"RFC"`
+	Name     string `json:"Name"`
+	LastName string `json:"LastName"`
+	Email    string `json:"Email"`
 }
+
+var DB *gorm.DB
 
 func (operation *OPERATION) BeforeCreate(tx *gorm.DB) (err error) {
 	operation.DateVisit = time.Now()
@@ -49,4 +54,5 @@ func ConnectDB() {
 	}
 	db.AutoMigrate(&USER{})
 	db.AutoMigrate(&OPERATION{})
+	DB = db
 }
