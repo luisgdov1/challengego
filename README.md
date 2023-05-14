@@ -16,7 +16,7 @@ $ git clone https://github.com/luisgdov1/challengego.git
 $ git checkout master
 $ Moficar el archivo .env con las credenciales de sendgrid <<USERNAME>> y <<PASSWORD>>
 $ docker build . -t challengego
-$ docker run 8000:8000 challengego
+$ docker run -p 8000:8000 challengego
 ```
 ## Consideracion
 ***
