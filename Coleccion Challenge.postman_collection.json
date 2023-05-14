@@ -1,0 +1,129 @@
+{
+	"info": {
+		"_postman_id": "f33f722d-65c8-4056-ad3c-b938a351cda3",
+		"name": "Coleccion Challenge",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20131915"
+	},
+	"item": [
+		{
+			"name": "Generar Structura desde CSV",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Usuario",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"RFC\": \"SASL970916JS3\",\r\n\t\"Name\": \"LUIS GERARDO\",\r\n\t\"LastName\": \"SANCHEZ\",\r\n\t\"Email\": \"luisgdo1609@gmail.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "127.0.0.1:8000/createUser",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"createUser"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Operaciones",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"Type_Operation\":\"Credit/Debit\",\r\n    \"Balance\": +-50.5,\r\n    \"RFC\": \"RFC\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "127.0.0.1:8000/createOperation",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"createOperation"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener todas las operaciones",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "127.0.0.1:8000/allOperation",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"allOperation"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mandar Email",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"rfc\": \"RFC DE LA PERSONA\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "127.0.0.1:8000/sendingEmail",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"sendingEmail"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
