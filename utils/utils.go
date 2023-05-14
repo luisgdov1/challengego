@@ -104,3 +104,38 @@ func GetMonthKey(number_string []string) string {
 	name_month := time.Month(int_month).String()
 	return name_month
 }
+
+func GenerateCSV(rfc string) []string {
+	var operations []db.OPERATION
+	var user db.USER
+
+	db.DB.Where("rfc = ?", rfc).First(&user)
+	db.DB.Preload("User").Where("user_id = ?", user.ID).Find(&operations)
+	transactions := make([]db.TRANSACTIONS_RESUMEN, 0)
+	for _, object := range operations {
+		transaction := db.TRANSACTIONS_RESUMEN{
+			Month:               string(object.DateVisit.Format("01/02")),
+			Number_transactions: int(object.Balance),
+		}
+		transactions = append(transactions, transaction)
+	}
+	name_file := user.Name + " " + user.LastName + ".csv"
+	file, err := os.Create(name_file)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	writer := csv.NewWriter(file)
+
+	rows := make([][]string, 0)
+	ids := 0
+	for _, object := range transactions {
+		row := []string{string(rune(ids)), object.Month, string(rune(object.Number_transactions))}
+		rows = append(rows, row)
+		ids++
+	}
+	writer.Flush()
+	data_list := []string{name_file, user.Name}
+	return data_list
+}

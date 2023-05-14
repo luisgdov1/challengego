@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -48,11 +47,54 @@ func GetOperations(c *gin.Context) {
 }
 
 func SendingEmailBD(c *gin.Context) {
-	var jsondata map[string]interface{}
+	var jsondata map[string]string
+	var user db.USER
 	if err := c.ShouldBindJSON(&jsondata); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	fmt.Println(jsondata)
+	if err := db.DB.Where("rfc = ?", jsondata["rfc"]).First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No existe registro"})
+		return
+	}
+	rfc_value := jsondata["rfc"]
+	file_name := utils.GenerateCSV(rfc_value)
+	data_csv, erro := utils.ReadDataCSV(file_name[0])
+	data_sending := utils.ClassifiedData(data_csv, erro)
+	utils.Prepare_email(user.Name, user.Email, data_sending)
 	c.JSON(http.StatusOK, gin.H{"data": jsondata})
+}
+
+func RendingEmailCSV(c *gin.Context) {
+	data_csv, erro := utils.ReadDataCSV("test.csv")
+	data_sending := utils.ClassifiedData(data_csv, erro)
+	context := map[string]interface{}{
+		"Name":                "Luis Gerardo",
+		"Balance":             data_sending.Total_balance,
+		"Promedio_Debito":     data_sending.Average_debit,
+		"Prmedio_Credito":     data_sending.Average_credit,
+		"Total_transacciones": data_sending.Total_transaction,
+		"Operaciones":         data_sending.Transactions_per_month,
+	}
+	c.HTML(http.StatusOK, "free-simple-card.html", context)
+}
+func RendingEmailBD(c *gin.Context) {
+	rfc := c.Param("rfc")
+	clave_html := "free-simple-card.html"
+	list_data := utils.GenerateCSV(rfc)
+	file_name := string(list_data[0])
+	data_csv, erro := utils.ReadDataCSV(file_name)
+	if erro != nil {
+		clave_html = "error.html"
+	}
+	data_sending := utils.ClassifiedData(data_csv, erro)
+	context := map[string]interface{}{
+		"Name":                string(list_data[1]),
+		"Balance":             data_sending.Total_balance,
+		"Promedio_Debito":     data_sending.Average_debit,
+		"Prmedio_Credito":     data_sending.Average_credit,
+		"Total_transacciones": data_sending.Total_transaction,
+		"Operaciones":         data_sending.Transactions_per_month,
+	}
+	c.HTML(http.StatusOK, clave_html, context)
 }
