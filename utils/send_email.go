@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"html/template"
 	"net/smtp"
+	"os"
 
 	"github.com/challengego/db"
 )
 
 func Prepare_email(name string, email string, data db.RESUMEN) {
-	SENDGRID_USER := ""
-	SENDGRID_PASSWORD := ""
+	SENDGRID_USER := os.Getenv("USER_SENDGRID")
+	SENDGRID_PASSWORD := os.Getenv("PASSWORD_SENDGRID")
 	gmail_auth := smtp.PlainAuth("", SENDGRID_USER, SENDGRID_PASSWORD, "smtp.sendgrid.net")
 	context := map[string]interface{}{
 		"Name":                name,

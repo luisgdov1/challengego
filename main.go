@@ -4,13 +4,18 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 
 	"github.com/challengego/db"
 	"github.com/challengego/handlers"
 )
 
 func main() {
-	fmt.Println("Hola go")
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("ERROR EN EL .ENV")
+		fmt.Print(err)
+	}
 	db.ConnectDB()
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/*")
