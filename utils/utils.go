@@ -23,7 +23,6 @@ func ReadDataCSV(fileName string) ([][]string, error) {
 
 	r := csv.NewReader(f)
 
-	// skip first line
 	if _, err := r.Read(); err != nil {
 		return [][]string{}, err
 	}
@@ -40,7 +39,9 @@ func ReadDataCSV(fileName string) ([][]string, error) {
 // FORMATO MES/DIA
 func ClassifiedData(data_csv [][]string, erro error) db.RESUMEN {
 	if erro != nil {
-		fmt.Println("ERROR EN LOS DATOS")
+		fmt.Println("ERROR EN EL CLASIFICADOR")
+		fmt.Println(erro)
+		fmt.Println("ERROR EN EL CLASIFICADOR")
 	}
 	var balance_total = 0.00
 	var debit_balance = 0.00
@@ -111,15 +112,7 @@ func GenerateCSV(rfc string) []string {
 
 	db.DB.Where("rfc = ?", rfc).First(&user)
 	db.DB.Preload("User").Where("user_id = ?", user.ID).Find(&operations)
-	transactions := make([]db.TRANSACTIONS_RESUMEN, 0)
-	for _, object := range operations {
-		transaction := db.TRANSACTIONS_RESUMEN{
-			Month:               string(object.DateVisit.Format("01/02")),
-			Number_transactions: int(object.Balance),
-		}
-		transactions = append(transactions, transaction)
-	}
-	name_file := user.Name + " " + user.LastName + ".csv"
+	name_file := user.RFC + ".csv"
 	file, err := os.Create(name_file)
 	if err != nil {
 		panic(err)
@@ -129,13 +122,18 @@ func GenerateCSV(rfc string) []string {
 	writer := csv.NewWriter(file)
 
 	rows := make([][]string, 0)
-	ids := 0
-	for _, object := range transactions {
-		row := []string{string(rune(ids)), object.Month, string(rune(object.Number_transactions))}
+	row_headers := []string{"Id", "Date", "Trasaction"}
+	rows = append(rows, row_headers)
+	for _, object := range operations {
+		row := []string{strconv.Itoa(int(object.ID)), string(object.DateVisit.Format("01/02")), strconv.FormatFloat(float64(object.Balance), 'f', 2, 32)}
 		rows = append(rows, row)
-		ids++
 	}
-	writer.Flush()
+	e := writer.WriteAll(rows)
+	if e != nil {
+		fmt.Println("ERROR EN ESCRITURA DE CSV")
+		fmt.Println(e)
+		fmt.Println("ERROR EN ESCRITURA DE CSV")
+	}
 	data_list := []string{name_file, user.Name}
 	return data_list
 }

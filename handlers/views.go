@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -33,16 +34,21 @@ func CreateOperation(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	if err := db.DB.Where("rfc = ?", operation.RFC).First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No existe registro"})
+		return
+	}
 	var_object := operation.RFC
 	db.DB.Where("rfc = ?", var_object).First(&user)
-	operation.User = user
 	db.DB.Create(&operation)
+	db.DB.Model(&operation).Association("User").Append(&user)
+	db.DB.Save(&operation)
 	c.JSON(http.StatusOK, gin.H{"data": operation})
 }
 
 func GetOperations(c *gin.Context) {
 	var operation []db.OPERATION
-	db.DB.Find(&operation)
+	db.DB.Preload("User").Find(&operation)
 	c.JSON(http.StatusOK, gin.H{"data": operation})
 }
 
@@ -84,7 +90,9 @@ func RendingEmailBD(c *gin.Context) {
 	list_data := utils.GenerateCSV(rfc)
 	file_name := string(list_data[0])
 	data_csv, erro := utils.ReadDataCSV(file_name)
-	if erro != nil {
+	if erro != nil || len(data_csv) <= 1 {
+		fmt.Println(erro)
+		fmt.Println(len(data_csv))
 		clave_html = "error.html"
 	}
 	data_sending := utils.ClassifiedData(data_csv, erro)
